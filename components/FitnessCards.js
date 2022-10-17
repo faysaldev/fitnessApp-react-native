@@ -7,21 +7,34 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import FitnessData from "../data/fitnessData";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { Audio } from "expo-av";
 
-const FitnessCards = () => {
-  const navigation = useNavigation();
+const FitnessCards = ({ clickHandler }) => {
+  // const navigation = useNavigation();
 
-  const clickHandler = (item) => {
-    navigation.navigate("Workout", {
-      image: item?.image,
-      exercise: item?.excersises,
-      id: item?.id,
-    });
-  };
+  // // TODO for sound
+  // const [sound, setSound] = useState();
+  // // const [sound, setSound] = useState();
+
+  // const playSound = async () => {
+  //   let sc = "../assets/audio/ready.mp3";
+  //   const { sound } = await Audio.Sound.createAsync(require(sc));
+  //   setSound(sound);
+  //   await sound.playAsync();
+  // };
+
+  // const clickHandler = (item) => {
+  //   navigation.navigate("Workout", {
+  //     image: item?.image,
+  //     exercise: item?.excersises,
+  //     id: item?.id,
+  //   });
+  //   playSound();
+  // };
 
   return (
     <View>

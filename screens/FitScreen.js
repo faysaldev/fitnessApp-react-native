@@ -6,9 +6,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
+import { useDispatch } from "react-redux";
+import { Audio } from "expo-av";
+
+import {
+  addWorkout,
+  addCal,
+  addMunite,
+  addCompleWorkout,
+} from "../redux/freatures/appSclice";
+import { Ionicons, AntDesign } from "@expo/vector-icons";
 
 const FitScreen = () => {
   const route = useRoute();
@@ -16,14 +26,48 @@ const FitScreen = () => {
   const [index, setIndex] = useState(0);
   const exercises = route?.params.exercise;
   const currentExersice = exercises[index];
+  const dispatch = useDispatch();
+
+  // TODO for audio
+  const [sound, setSound] = useState();
+  // const [sound, setSound] = useState();
+
+  const playSound = async () => {
+    let sc = "../assets/audio/break.mp3";
+    const { sound } = await Audio.Sound.createAsync(require(sc));
+    setSound(sound);
+    await sound.playAsync();
+  };
+
+  const donePressHandler = () => {
+    navigation.navigate("Rest");
+    setTimeout(() => {
+      setIndex(index + 1);
+    }, 3000);
+    dispatch(addCal(5.7));
+    dispatch(addMunite(2.5));
+    dispatch(addWorkout(1));
+    dispatch(addCompleWorkout(currentExersice?.name));
+    playSound();
+  };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ marginTop: 10 }}>
       {/* <StatusBar style="auto" /> */}
       <Image
         source={{ uri: currentExersice?.image }}
         style={{ width: "100%", height: 370, resizeMode: "cover" }}
       />
+      <TouchableOpacity style={{ position: "absolute", top: 10, left: 15 }}>
+        <Ionicons
+          onPress={() => navigation.goBack()}
+          style={{ color: "gray" }}
+          name="arrow-back-outline"
+          size={25}
+          color="black"
+        />
+      </TouchableOpacity>
+
       <View
         style={{
           marginLeft: "auto",
@@ -68,12 +112,7 @@ const FitScreen = () => {
       ) : (
         <>
           <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("Rest");
-              setTimeout(() => {
-                setIndex(index + 1);
-              }, 3000);
-            }}
+            onPress={donePressHandler}
             style={{
               backgroundColor: "blue",
               padding: 10,

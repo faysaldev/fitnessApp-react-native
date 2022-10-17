@@ -9,17 +9,89 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
-import React, { useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import FitnessCards from "../components/FitnessCards";
+import { useSelector } from "react-redux";
+import {
+  intialCompleted,
+  intialCal,
+  intialWorkout,
+  intialmunite,
+  selectCal,
+  selectCompleted,
+  selectMunite,
+  selectWorkout,
+} from "../redux/freatures/appSclice";
+import { useDispatch } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Audio } from "expo-av";
+import FitnessData from "../data/fitnessData";
 
 const HomeScreen = () => {
+  const workout = useSelector(selectWorkout);
+  const cal = useSelector(selectCal);
+  const munite = useSelector(selectMunite);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, []);
+
+  // fetch date to locastorage
+  const completeWorkout = useSelector(selectCompleted);
+  const setLocalStorage = {
+    completed: completeWorkout,
+    workout,
+    cal,
+    munite,
+  };
+
+  useEffect(() => {
+    const getData = async () => {
+      const value = await AsyncStorage.getItem("@workoutData");
+      const jsonvalue = JSON.parse(value);
+      if (value !== null) {
+        dispatch(intialCompleted(jsonvalue?.completed));
+        dispatch(intialCal(jsonvalue?.cal));
+        dispatch(intialWorkout(jsonvalue?.workout));
+        dispatch(intialmunite(jsonvalue?.munite));
+      }
+    };
+
+    getData();
+    return async () => {
+      try {
+        const jsonValue = JSON.stringify(setLocalStorage);
+        await AsyncStorage.setItem("@workoutData", jsonValue);
+      } catch (e) {
+        //onsole.log("There was an error");
+      }
+    };
+  }, []);
+
+  // for go to the workout screen
+  const [sound, setSound] = useState();
+
+  const playSound = async () => {
+    let sc = "../assets/audio/ready.mp3";
+    const { sound } = await Audio.Sound.createAsync(require(sc));
+    setSound(sound);
+    await sound.playAsync();
+  };
+
+  const clickHandler = (item) => {
+    navigation.navigate("Workout", {
+      image: item?.image,
+      exercise: item?.excersises,
+      id: item?.id,
+    });
+    playSound();
+  };
+
   return (
     <ScrollView>
       <View style={styles.homeContainer}>
@@ -46,7 +118,7 @@ const HomeScreen = () => {
             }}
           >
             <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 25 }}>
-              0
+              {workout}
             </Text>
             <Text
               style={{ color: "whitesmoke", opacity: 0.8, fontWeight: "700" }}
@@ -60,7 +132,7 @@ const HomeScreen = () => {
             }}
           >
             <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 25 }}>
-              0
+              {cal > 1000 ? cal / 1000 : Math.floor(cal)}
             </Text>
             <Text
               style={{ color: "whitesmoke", opacity: 0.8, fontWeight: "700" }}
@@ -74,7 +146,7 @@ const HomeScreen = () => {
             }}
           >
             <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 25 }}>
-              0
+              {munite > 60 ? munite / 60 : munite}
             </Text>
             <Text
               style={{ color: "whitesmoke", opacity: 0.8, fontWeight: "700" }}
@@ -104,13 +176,39 @@ const HomeScreen = () => {
               uri: "https://i.ibb.co/JznVnhz/man-gb4f553c45-640.jpg",
             }}
           />
+
+          <TouchableOpacity
+            onPress={() => clickHandler(FitnessData[0])}
+            style={{
+              backgroundColor: "#2888fe",
+              position: "absolute",
+              padding: 10,
+              marginLeft: "auto",
+              marginRight: "auto",
+              marginVertical: 20,
+              width: 120,
+              borderRadius: 6,
+              bottom: -20,
+            }}
+          >
+            <Text
+              style={{
+                textAlign: "center",
+                color: "white",
+                fontSize: 15,
+                fontWeight: "700",
+              }}
+            >
+              START
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
       <View
         style={{ marginTop: 90, paddingHorizontal: 20, paddingVertical: 30 }}
       >
-        <FitnessCards />
+        <FitnessCards clickHandler={clickHandler} />
       </View>
     </ScrollView>
   );
@@ -127,5 +225,6 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     borderBottomStartRadius: 50,
     borderBottomEndRadius: 50,
+    marginTop: 30,
   },
 });

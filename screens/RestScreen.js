@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const RestScreen = () => {
   const navigation = useNavigation();
+
   const [time, setTime] = useState(0);
   useEffect(() => {
     setTimeout(() => {
@@ -21,7 +22,7 @@ const RestScreen = () => {
   timerFn();
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ marginTop: 10 }}>
       <Image
         source={{
           uri: "https://media.tenor.com/IRQQfCihUrEAAAAi/%E3%81%8A%E7%96%B2%E3%82%8C%E3%81%95%E3%81%BE-%E4%BC%91%E6%86%A9.gif",
