@@ -68,7 +68,7 @@ const HomeScreen = () => {
         const jsonValue = JSON.stringify(setLocalStorage);
         await AsyncStorage.setItem("@workoutData", jsonValue);
       } catch (e) {
-        //onsole.log("There was an error");
+        onsole.log("There was an error");
       }
     };
   }, []);
